@@ -1,13 +1,19 @@
+// We will be using the recoil state management library as we want the
+// utility to open the modal outside the modal component itself
+// E.g: Log In, Sign Up and trying to upvote while not signed in
+// triggers the Modal.
+// So we require a Global state. Which will allow us to open this Modal
+// from anywhere in the app.
 import {
-  useDisclosure,
   Button,
   Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalHeader,
-  ModalCloseButton,
   ModalBody,
+  ModalCloseButton,
+  ModalContent,
   ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  useDisclosure,
 } from "@chakra-ui/react";
 import React from "react";
 
