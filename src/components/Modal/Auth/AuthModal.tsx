@@ -4,38 +4,58 @@
 // triggers the Modal.
 // So we require a Global state. Which will allow us to open this Modal
 // from anywhere in the app.
+import { authModalState } from "@/src/atoms/authModalAtom";
 import {
-  Button,
+  Flex,
   Modal,
   ModalBody,
   ModalCloseButton,
   ModalContent,
-  ModalFooter,
   ModalHeader,
   ModalOverlay,
-  useDisclosure,
 } from "@chakra-ui/react";
 import React from "react";
+import { useRecoilState } from "recoil";
+import AuthInputs from "./AuthInputs";
 
 const AuthModal: React.FC = () => {
-  const { isOpen, onOpen, onClose } = useDisclosure();
-  return (
-    <>
-      <Button onClick={onOpen}>Open Modal</Button>
+  const [modalState, setModalState] = useRecoilState(authModalState);
 
-      <Modal isOpen={isOpen} onClose={onClose}>
+  const handleClose = () => {
+    setModalState((prev) => ({ ...prev, open: false }));
+    //enclosed in (parantheses) as parser cant recognize
+    //object literal vs. function definition
+  };
+  return (
+    // We use <> </> React fragments to avoid <div> wrappers
+    <>
+      <Modal isOpen={modalState.open} onClose={handleClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Modal Title</ModalHeader>
+          <ModalHeader textAlign='center'>
+            {modalState.view === "login" && "Login"}
+            {modalState.view === "signup" && "Sign Up"}
+            {modalState.view === "resetPassword" && "Reset Password"}
+          </ModalHeader>
           <ModalCloseButton />
-          <ModalBody>Here is the Modal body</ModalBody>
-
-          <ModalFooter>
-            <Button colorScheme='blue' mr={3} onClick={onClose}>
-              Close
-            </Button>
-            <Button variant='ghost'>Secondary Action</Button>
-          </ModalFooter>
+          <ModalBody
+            display='flex'
+            flexDirection='column'
+            justifyContent='center'
+            alignItems='center'
+            pb={6}
+          >
+            <Flex
+              direction='column'
+              justify='center'
+              align='center'
+              width='70%'
+            >
+              {/* <OAuthButtons /> */}
+              <AuthInputs />
+              {/* <ResetPassword /> */}
+            </Flex>
+          </ModalBody>
         </ModalContent>
       </Modal>
     </>
