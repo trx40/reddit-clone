@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Modal,
   ModalOverlay,
@@ -19,6 +19,17 @@ import {
 } from "@chakra-ui/react";
 import { BsFillEyeFill, BsFillPersonFill } from "react-icons/bs";
 import { HiLockClosed } from "react-icons/hi";
+import { auth, firestore } from "@/src/firebase/clientApp";
+import {
+  doc,
+  getDoc,
+  runTransaction,
+  serverTimestamp,
+  setDoc,
+} from "firebase/firestore";
+import { useAuthState } from "react-firebase-hooks/auth";
+import { FIREBASE_ERRORS } from "@/src/firebase/errors";
+
 type CreateCommunityModalProps = {
   isOpen: boolean;
   handleClose: () => void;
@@ -28,9 +39,12 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
   isOpen,
   handleClose,
 }) => {
+  const [user] = useAuthState(auth);
   const [communityName, setCommunityName] = useState("");
   const [charsRemaining, setCharsRemaining] = useState(21);
   const [communityType, setCommunityType] = useState("public");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.value.length > 21) return;
@@ -44,6 +58,64 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
   ) => {
     setCommunityType(event.target.name);
   };
+
+  const handleCreateCommunuty = async () => {
+    // Flush error state for retrying create community
+    if (error) setError("");
+    // Validate the community
+    //  -> Name between 3-21 characters, no special chars
+    const format = /[ `!@#$%^&*()+\-=\[\]{};':"\\|,.<>\/?~]/;
+    if (format.test(communityName) || communityName.length < 3) {
+      setError(
+        `Community names must be between 3-21 characters, and can only contain letters, numbers, or underscores.`
+      );
+      return;
+    }
+    //  -> Unique not taken by another community
+    setLoading(true);
+
+    try {
+      const communityDocRef = doc(firestore, "communities", communityName);
+
+      await runTransaction(firestore, async (transaction) => {
+        const communityDoc = await transaction.get(communityDocRef);
+        // Check if community exists in db
+        if (communityDoc.exists()) {
+          throw new Error(`Sorry, r/${communityName} is taken. Try another.`);
+        }
+        // Create the community document in firestore
+
+        transaction.set(communityDocRef, {
+          creatorId: user?.uid,
+          createdAt: serverTimestamp(),
+          numberOfMembers: 1,
+          privacyType: communityType,
+        });
+
+        // Create communitySnippet on user
+
+        transaction.set(
+          doc(firestore, `users/${user?.uid}/communitySnippets`, communityName),
+          {
+            communityId: communityName,
+            isModerator: true,
+          }
+        );
+      });
+    } catch (error: any) {
+      setError(FIREBASE_ERRORS[error.message]);
+    }
+
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    //  Resetting states on re-opening Modal
+    setError("");
+    setCommunityName("");
+    setCharsRemaining(21);
+    setCommunityType("public");
+  }, [isOpen]);
 
   return (
     <>
@@ -89,6 +161,9 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
                 color={charsRemaining === 0 ? "red" : "gray.500"}
               >
                 {charsRemaining} Characters remaining
+              </Text>
+              <Text fontSize='9pt' color='red' pt={1}>
+                {error}
               </Text>
               <Box mt={4} mb={4}>
                 <Text fontWeight={600} fontSize={15}>
@@ -159,7 +234,11 @@ const CreateCommunityModal: React.FC<CreateCommunityModalProps> = ({
             >
               Cancel
             </Button>
-            <Button height='30px' onClick={() => {}}>
+            <Button
+              height='30px'
+              onClick={handleCreateCommunuty}
+              isLoading={loading}
+            >
               Create Community
             </Button>
           </ModalFooter>
