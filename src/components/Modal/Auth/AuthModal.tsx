@@ -33,10 +33,9 @@ const AuthModal: React.FC = () => {
     //object literal vs. function definition
   };
 
-  useEffect(() => {
-    if (user) handleClose();
-    console.log("user", user);
-  }, [user]);
+  // useEffect(() => {
+  //   if (user) handleClose();
+  // }, [user]);
 
   return (
     // We use <> </> React fragments to avoid <div> wrappers
