@@ -1,5 +1,7 @@
 import { auth, firestore } from "@/src/firebase/clientApp";
-import { Button, Flex, Image, Text } from "@chakra-ui/react";
+import { Button, Flex, Text } from "@chakra-ui/react";
+
+import { Image } from "@chakra-ui/react";
 import { User } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import React, { useEffect } from "react";
@@ -30,7 +32,7 @@ const OAuthButtons: React.FC = () => {
       >
         <Image
           alt='Google Logo'
-          src='images/googlelogo.png'
+          src='/images/googlelogo.png'
           height='20px'
           mr={4}
         />
