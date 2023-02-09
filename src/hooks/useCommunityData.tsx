@@ -48,9 +48,19 @@ const useCommunityData = () => {
     setLoading(false);
   };
 
-  const joinCommunity = (communityData: Community) => {};
+  const joinCommunity = (communityData: Community) => {
+    //  batch write
+    //  creating a new community snippet
+    //  updating the numberOfMembers (+1)
+    //  update recoil state - communityState.mySnippets
+  };
 
-  const leaveCommunity = (communityId: string) => {};
+  const leaveCommunity = (communityId: string) => {
+    //  batch write
+    //  deleting community snippet from user
+    //  updating the numberOfMembers (-1)
+    //  update recoil state - communityState.mySnippets
+  };
   useEffect(() => {
     if (!user) return;
     getMySnippets();
