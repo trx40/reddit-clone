@@ -56,7 +56,6 @@ const useCommunityData = () => {
       console.log("getMySnippets error", error);
       setError(error.message);
     }
-    console.log("getMySnippets call");
     setLoading(false);
   }, [user, setCommunityStateValue]);
 
