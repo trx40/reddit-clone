@@ -5,10 +5,12 @@ import { IoDocumentText, IoImageOutline } from "react-icons/io5";
 import { AiFillCloseCircle } from "react-icons/ai";
 import { Flex, Icon } from "@chakra-ui/react";
 import TabItem from "./TabItem";
+import TextInputs from "./PostForm/TextInputs";
+import ImageUpload from "./PostForm/ImageUpload";
 
 type NewPostFormProps = {};
 
-const formTabs = [
+const formTabs: TabItemType[] = [
   {
     title: "Post",
     icon: IoDocumentText,
@@ -37,6 +39,29 @@ export type TabItemType = {
 };
 const NewPostForm: React.FC<NewPostFormProps> = () => {
   const [selectedTab, setSelectedTab] = useState(formTabs[0].title);
+  const [textInputs, setTextInputs] = useState({
+    title: "",
+    body: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<string>();
+
+  const handleCreatePost = async () => {};
+
+  const onSelectImage = () => {};
+
+  const onTextChange = (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    const {
+      target: { name, value },
+    } = event;
+    setTextInputs((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
   return (
     <Flex direction='column' bg='white' borderRadius={4} mt={2}>
       <Flex width='100%'>
@@ -48,6 +73,17 @@ const NewPostForm: React.FC<NewPostFormProps> = () => {
             setSelectedTab={setSelectedTab}
           />
         ))}
+      </Flex>
+      <Flex p={4}>
+        {selectedTab === "Post" && (
+          <TextInputs
+            textInputs={textInputs}
+            handleCreatePost={handleCreatePost}
+            onChange={onTextChange}
+            loading={loading}
+          />
+        )}
+        {selectedTab === "Images & Video" && <ImageUpload />}
       </Flex>
     </Flex>
   );
