@@ -1,7 +1,8 @@
 import { Community } from "@/src/atoms/communitiesAtom";
 import { Post } from "@/src/atoms/postsAtom";
-import { firestore } from "@/src/firebase/clientApp";
+import { auth, firestore } from "@/src/firebase/clientApp";
 import usePosts from "@/src/hooks/usePosts";
+import { Stack } from "@chakra-ui/react";
 import {
   collection,
   doc,
@@ -11,15 +12,23 @@ import {
   where,
 } from "firebase/firestore";
 import React, { useEffect, useState } from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
+import PostItem from "./PostItem";
 
 type PostsProps = {
   communityData: Community;
 };
 
 const Posts: React.FC<PostsProps> = ({ communityData }) => {
-  // useAuthState
+  const [user] = useAuthState(auth);
   const [loading, setLoading] = useState(false);
-  const { postStateValue, setPostStateValue } = usePosts();
+  const {
+    postStateValue,
+    setPostStateValue,
+    onVote,
+    onSelectPost,
+    onDeletePost,
+  } = usePosts();
 
   const getPosts = async () => {
     try {
@@ -45,6 +54,20 @@ const Posts: React.FC<PostsProps> = ({ communityData }) => {
   useEffect(() => {
     getPosts();
   }, []);
-  return <div>Posts</div>;
+  return (
+    <Stack>
+      {postStateValue.posts.map((item) => (
+        <PostItem
+          key={item.id}
+          post={item}
+          userIsCreator={item.creatorId === user?.uid}
+          userVoteValue={undefined}
+          onVote={onVote}
+          onDeletePost={onDeletePost}
+          onSelectPost={onSelectPost}
+        />
+      ))}
+    </Stack>
+  );
 };
 export default Posts;
