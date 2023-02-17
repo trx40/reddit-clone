@@ -1,4 +1,4 @@
-import { Community } from "@/src/atoms/communitiesAtom";
+import { Community, CommunityState } from "@/src/atoms/communitiesAtom";
 import React, { useRef, useState } from "react";
 import {
   Box,
@@ -24,13 +24,48 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { FaReddit } from "react-icons/fa";
 import { getDownloadURL, ref, uploadString } from "firebase/storage";
 import { doc, updateDoc } from "firebase/firestore";
+import useSelectFile from "@/src/hooks/useSelectFile";
 
 type AboutProps = {
   communityData: Community;
 };
 
 const About: React.FC<AboutProps> = ({ communityData }) => {
+  const [user] = useAuthState(auth);
+  const selectedFileRef = useRef<HTMLInputElement>(null);
+  const { selectedFile, setSelectedFile, onSelectFile } = useSelectFile();
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const setCommunityStateValue = useSetRecoilState(CommunityState);
   const router = useRouter();
+
+  const onUpdateImage = async () => {
+    if (!selectedFile) return;
+    setUploadingImage(true);
+    try {
+      // upload to storage
+      const imageRef = ref(storage, `communities/${communityData.id}/image`);
+      await uploadString(imageRef, selectedFile, "data_url");
+
+      // update community doc
+      const downloadURL = await getDownloadURL(imageRef);
+      await updateDoc(doc(firestore, "communities", communityData.id), {
+        imageURL: downloadURL,
+      });
+
+      // update recoil state CommunityState
+      setCommunityStateValue((prev) => ({
+        ...prev,
+        currentCommunity: {
+          ...prev.currentCommunity,
+          imageURL: downloadURL,
+        } as Community,
+      }));
+    } catch (error) {
+      console.log("On Update Community Image Error", error);
+    }
+    setUploadingImage(false);
+  };
+
   return (
     <Box position='sticky' top='14px'>
       <Flex
@@ -76,11 +111,65 @@ const About: React.FC<AboutProps> = ({ communityData }) => {
               </Text>
             )}
           </Flex>
-          <Link href={`/r/${router.query.communityId}/submit`}>
+          <Link href={`/r/${communityData.id}/submit`}>
             <Button mt={2} height='30px' width='100%'>
               Create Post
             </Button>
           </Link>
+          {user?.uid === communityData.creatorId && (
+            <>
+              <Divider />
+              <Stack spacing={1} fontSize='10pt'>
+                <Text fontWeight={600}>Admin</Text>
+                <Flex align='center' justify='space-between'>
+                  <Button
+                    variant='outline'
+                    height='28px'
+                    width={40}
+                    onClick={() => selectedFileRef.current?.click()}
+                  >
+                    Change Image
+                  </Button>
+                  {communityData.imageURL || selectedFile ? (
+                    <Image
+                      src={selectedFile || communityData.imageURL}
+                      borderRadius='full'
+                      boxSize='40px'
+                      alt='Community Image'
+                    />
+                  ) : (
+                    <Icon
+                      as={FaReddit}
+                      fontSize={40}
+                      color='brand.100'
+                      mr={2}
+                    />
+                  )}
+                </Flex>
+                {selectedFile &&
+                  (uploadingImage ? (
+                    <Spinner alignSelf='center' />
+                  ) : (
+                    <Button
+                      variant='solid'
+                      height='28px'
+                      width={40}
+                      onClick={onUpdateImage}
+                    >
+                      Save Changes
+                    </Button>
+                  ))}
+                <input
+                  id='file-upload'
+                  type='file'
+                  accept='image/x-png,image/gif,image/jpeg'
+                  hidden
+                  ref={selectedFileRef}
+                  onChange={onSelectFile}
+                />
+              </Stack>
+            </>
+          )}
         </Stack>
       </Flex>
     </Box>
