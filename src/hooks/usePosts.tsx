@@ -8,7 +8,23 @@ import { firestore, storage } from "../firebase/clientApp";
 const usePosts = () => {
   const [postStateValue, setPostStateValue] = useRecoilState(postState);
 
-  const onVote = async () => {};
+  const onVote = async (post: Post, vote: number, communityId: string) => {
+    if (newVote) {
+      // add/subtract 1 to/from post.voteStatus
+      // create a new postVote document
+    }
+    // Existing vote - they have voted on the post before
+    else {
+      // Removing their vote ( up -> neutral OR down -> neutral)
+      if (removingVote) {
+        // add/subtract 1 to/from post.voteStatus
+        // delete the postVote document
+      } else {
+        // add/subtract 2 to/from post.voteStatus
+        // updating the existing postVote document
+      }
+    }
+  };
 
   const onSelectPost = () => {};
 
