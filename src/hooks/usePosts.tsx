@@ -1,28 +1,52 @@
-import { deleteDoc, doc } from "firebase/firestore";
+import { collection, deleteDoc, doc, writeBatch } from "firebase/firestore";
 import { deleteObject, ref } from "firebase/storage";
 import React from "react";
+import { useAuthState } from "react-firebase-hooks/auth";
 import { useRecoilState } from "recoil";
 import { Post, postState } from "../atoms/postsAtom";
-import { firestore, storage } from "../firebase/clientApp";
+import { auth, firestore, storage } from "../firebase/clientApp";
 
 const usePosts = () => {
   const [postStateValue, setPostStateValue] = useRecoilState(postState);
-
+  const [user] = useAuthState(auth);
   const onVote = async (post: Post, vote: number, communityId: string) => {
-    if (newVote) {
-      // add/subtract 1 to/from post.voteStatus
-      // create a new postVote document
-    }
-    // Existing vote - they have voted on the post before
-    else {
-      // Removing their vote ( up -> neutral OR down -> neutral)
-      if (removingVote) {
+    // TODO: check for a user --> if not, open auth modalw
+    try {
+      const { voteStatus } = post;
+      const existingVote = postStateValue.postVotes.find(
+        (vote) => vote.postId === post.id
+      );
+
+      const batch = writeBatch(firestore);
+      const updatedPost = { ...post };
+      const updatedPosts = [...postStateValue.posts];
+      const updatedPostVotes = [...postStateValue.postVotes];
+      let voteChange = vote;
+
+      // * New Vote
+      if (!existingVote) {
+        // create a new postVote document
+        const postVoteRef = doc(
+          collection(firestore, "users", `${user?.uid}/postVotes`)
+        );
+
         // add/subtract 1 to/from post.voteStatus
-        // delete the postVote document
-      } else {
-        // add/subtract 2 to/from post.voteStatus
-        // updating the existing postVote document
       }
+      // * Existing vote - they have voted on the post before
+      else {
+        // Removing their vote ( up -> neutral OR down -> neutral)
+        if (removingVote) {
+          // add/subtract 1 to/from post.voteStatus
+          // delete the postVote document
+        } else {
+          // add/subtract 2 to/from post.voteStatus
+          // updating the existing postVote document
+        }
+      }
+
+      // TODO: update state with updated values
+    } catch (error) {
+      console.log("onVote error", error);
     }
   };
 
