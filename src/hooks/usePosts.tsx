@@ -138,8 +138,6 @@ const usePosts = () => {
       batch.update(postRef, { voteStatus: voteStatus + voteChange });
 
       await batch.commit();
-
-      // TODO: update state with updated values
     } catch (error) {
       console.log("onVote error", error);
     }
