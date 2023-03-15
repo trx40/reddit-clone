@@ -1,21 +1,32 @@
 import { authModalState } from "@/src/atoms/authModalAtom";
 import { ChevronDownIcon } from "@chakra-ui/icons";
-import { Flex, Icon, Menu, MenuButton, MenuList, Text } from "@chakra-ui/react";
+import {
+  Flex,
+  Icon,
+  Image,
+  Menu,
+  MenuButton,
+  MenuList,
+  Text,
+} from "@chakra-ui/react";
 import React from "react";
 import { useSetRecoilState } from "recoil";
 import { TiHome } from "react-icons/ti";
 import Communities from "./Communities";
+import useDirectory from "@/src/hooks/useDirectory";
 
 const Directory: React.FC = () => {
   const setAuthModalState = useSetRecoilState(authModalState);
+  const { directoryState, toggleMenuOpen } = useDirectory();
   return (
-    <Menu>
+    <Menu isOpen={directoryState.isOpen}>
       <MenuButton
         cursor='pointer'
         padding='0px 6px'
         borderRadius={4}
         mr={2}
         ml={{ base: 0, md: 2 }}
+        onClick={() => toggleMenuOpen()}
         _hover={{ outline: "1px solid", outlineColor: "gray.200" }}
       >
         <Flex
@@ -24,10 +35,25 @@ const Directory: React.FC = () => {
           width={{ base: "auto", lg: "200px" }}
         >
           <Flex align='center'>
-            <Icon fontSize={24} mr={{ base: 1, md: 2 }} as={TiHome} />
+            {directoryState.selectedMenuItem.imageURL ? (
+              <Image
+                src={directoryState.selectedMenuItem.imageURL}
+                borderRadius='full'
+                boxSize='24px'
+                mr={2}
+                alt='Community Icon'
+              />
+            ) : (
+              <Icon
+                fontSize={24}
+                mr={{ base: 1, md: 2 }}
+                as={directoryState.selectedMenuItem.icon}
+                color={directoryState.selectedMenuItem.iconColor}
+              />
+            )}
             <Flex display={{ base: "none", lg: "flex" }}>
               <Text fontWeight={600} fontSize='10pt'>
-                Home
+                {directoryState.selectedMenuItem.displayText}
               </Text>
             </Flex>
           </Flex>
