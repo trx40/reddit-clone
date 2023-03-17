@@ -1,5 +1,12 @@
 import { Stack } from "@chakra-ui/react";
-import { collection, getDocs, limit, orderBy, query } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  limit,
+  orderBy,
+  query,
+  where,
+} from "firebase/firestore";
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useRecoilValue } from "recoil";
@@ -24,8 +31,36 @@ export default function Home() {
     onVote,
   } = usePosts();
 
-  const buildUserHomeFeed = () => {
-    // fetch some posts from each community the user is part of
+  const buildUserHomeFeed = async () => {
+    setLoading(true);
+    try {
+      if (communityStateValue.mySnippets.length) {
+        // get posts from user's communities
+        const myCommunityIds = communityStateValue.mySnippets.map(
+          (snippet) => snippet.communityId
+        );
+        const postQuery = query(
+          collection(firestore, "posts"),
+          where("communityId", "in", myCommunityIds),
+          limit(10)
+        );
+        const postDocs = await getDocs(postQuery);
+        const posts = postDocs.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setPostStateValue((prev) => ({
+          ...prev,
+          posts: posts as Post[],
+        }));
+      } else {
+        // user isnt part of any community
+        buildNoUserHomeFeed();
+      }
+    } catch (error) {
+      console.error("buildUserHomeFeed error", error);
+    }
+    setLoading(false);
   };
 
   const buildNoUserHomeFeed = async () => {
