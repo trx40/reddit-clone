@@ -138,7 +138,8 @@ const Recommendations: React.FC = () => {
                         height='22px'
                         fontSize='8pt'
                         onClick={(event) => {
-                          event.stopPropagation();
+                          event.preventDefault();
+                          //   event.stopPropagation();
                           onJoinOrLeaveCommunity(item, isJoined);
                         }}
                         variant={isJoined ? "outline" : "solid"}
