@@ -14,6 +14,7 @@ import { useRecoilValue } from "recoil";
 import { CommunityState } from "../atoms/communitiesAtom";
 import { Post, PostVote } from "../atoms/postsAtom";
 import CreatePostLink from "../components/Community/CreatePostLink";
+import Recommendations from "../components/Community/Recommendations";
 import PageContent from "../components/Layout/PageContent";
 import PostItem from "../components/Posts/PostItem";
 import PostLoader from "../components/Posts/PostLoader";
@@ -157,7 +158,9 @@ export default function Home() {
           </Stack>
         )}
       </>
-      <>{/* Recommendations */}</>
+      <>
+        <Recommendations />
+      </>
     </PageContent>
   );
 }
