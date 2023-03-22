@@ -20,7 +20,17 @@ const Premium: React.FC = () => {
           <Text>The best Reddit experience, with monthly Coins</Text>
         </Stack>
       </Flex>
-      <Button height='30px' bg='brand.100'>
+      <Button
+        height='30px'
+        bg='white'
+        color='brand.100'
+        border='1px solid'
+        borderColor='brand.100'
+        _hover={{
+          bg: "brand.100",
+          color: "white",
+        }}
+      >
         Try Now
       </Button>
     </Flex>
