@@ -9,7 +9,7 @@ import {
   MenuList,
   Text,
 } from "@chakra-ui/react";
-import React from "react";
+import React, { useEffect } from "react";
 import { useSetRecoilState } from "recoil";
 import { TiHome } from "react-icons/ti";
 import Communities from "./Communities";
@@ -18,6 +18,10 @@ import useDirectory from "@/src/hooks/useDirectory";
 const Directory: React.FC = () => {
   const setAuthModalState = useSetRecoilState(authModalState);
   const { directoryState, toggleMenuOpen } = useDirectory();
+
+  useEffect(() => {
+    console.log(directoryState);
+  }, [directoryState]);
   return (
     <Menu isOpen={directoryState.isOpen}>
       <MenuButton
