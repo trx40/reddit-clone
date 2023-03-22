@@ -22,7 +22,7 @@ interface CommunityState {
   snippetsFetched: boolean;
 }
 
-const defaultCommunityState: CommunityState = {
+export const defaultCommunityState: CommunityState = {
   mySnippets: [],
   snippetsFetched: false,
 };
