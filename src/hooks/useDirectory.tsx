@@ -43,7 +43,13 @@ const useDirectory = () => {
 
   useEffect(() => {
     const { currentCommunity } = communityStateValue;
-
+    if (router.asPath === "/") {
+      setDirectoryState((prev) => ({
+        ...prev,
+        selectedMenuItem: defaultMenuItem,
+      }));
+      return;
+    }
     if (currentCommunity) {
       setDirectoryState((prev) => ({
         ...prev,
@@ -56,7 +62,7 @@ const useDirectory = () => {
         },
       }));
     }
-  }, [communityStateValue.currentCommunity]);
+  }, [communityStateValue.currentCommunity, router.asPath]);
 
   return { directoryState, toggleMenuOpen, onSelectMenuItem };
 };
